@@ -1,0 +1,10 @@
+# src/Demo/PlatformBundle/Resources/config/routing.yml
+
+# demo_platform_homepage:
+#     path:     /
+#     defaults: { _controller: DemoPlatformBundle:Default:index }
+
+
+hello_the_world:
+    path:     /hello-world
+    defaults: { _controller: DemoPlatformBundle:Advert:index }
