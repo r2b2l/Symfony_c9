@@ -5,6 +5,46 @@
 #     defaults: { _controller: DemoPlatformBundle:Default:index }
 
 
-hello_the_world:
-    path:     /hello-world
-    defaults: { _controller: DemoPlatformBundle:Advert:index }
+demo_platform_home:
+    path:    /{page}
+    defaults: 
+        _controller: DemoPlatformBundle:Advert:index
+        page: 1
+    requirements: 
+        page: \d*
+    
+demo_platform_view:
+    path:      /advert/{id}
+    defaults: 
+        _controller: DemoPlatformBundle:Advert:view
+    requirements: 
+        id: \d+    
+    
+demo_platform_add:
+    path:      /add
+    defaults:
+        _controller: DemoPlatformBundle:Advert:add
+
+demo_platform_edit:
+    path:    /edit/{id}
+    defaults:
+        _controller: DemoPlatformBundle:Advert:edit
+    requirements:
+        id: \d+
+        
+demo_platform_delete:
+    path:    /delete/{id}
+    defaults:
+        _controller: DemoPlatformBundle:Advert:delete
+    requirements:
+        id: \d+
+    
+demo_platform_view_slug:
+    # _format = paramètre système => Va définir le content-type de la page
+    path:      /{year}/{slug}.{_format}
+    defaults:
+        _controller: DemoPlatformBundle:Advert:viewSlug
+        _format:    html
+    requirements:
+        year: \d{4}
+        _format: html|xml

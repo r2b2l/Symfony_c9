@@ -67,5 +67,6 @@
 ### Symfony Patch ###
 /web/css/
 /web/js/
+/web/usefull.txt
 
 # End of https://www.gitignore.io/api/symfony
