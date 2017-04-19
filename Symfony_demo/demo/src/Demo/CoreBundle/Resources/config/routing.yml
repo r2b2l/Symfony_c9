@@ -1,0 +1,12 @@
+# src/Demo/CoreBundle/Resources/config/routing.yml
+
+# Index du Core
+demo_core_homepage:
+    path:     /
+    defaults: { _controller: DemoCoreBundle:Core:index }
+
+
+# Page de contact | Maybe sur un controller a part entière ?
+demo_core_contact:
+    path:    /contact
+    defaults: { _controller: DemoCoreBundle:Core:contact}

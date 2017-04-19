@@ -1,0 +1,27 @@
+{# CoreBundle/Resources/views/layout.html.twig #}
+{# Extension du Layout global, qui va fusionner le site  #}
+{# utiliser dans une vue avec : extends "DemoCoreBundle::layout.html.twig"  #}
+{% extends "::layout.html.twig" %}
+
+{% block bodyHeader %}      
+  <h1> Page d'accueil du CoreBundle</h1>
+{% endblock %}      
+  
+{% block bodyMenu %}
+  <ul class="nav flex-column">
+    <li class="nav-item"><a class="nav-link active" href="{{ path('demo_core_homepage')}}">Accueil du site</a></li>
+    <li class="nav-item"><a class="nav-link active" href="{{ path('demo_forum_homepage')}}">Accueil du forum</a></li>
+  </ul>
+  <h3>Les annonces</h3>
+  <ul class="nav flex-column">
+    <li class="nav-item"><a class="nav-link active" href="{{ path('demo_platform_home') }}">Accueil</a></li>
+    <li class="nav-item"><a class="nav-link active" href="{{ path('demo_platform_add') }}">Ajouter une annonce</a></li>
+  </ul>
+{% endblock %}
+
+{% block bodyFooter %}
+{{ parent() }} - <a href="{{ path('demo_core_contact') }}">Contactez-nous !</a>
+{% endblock %}
+
+{# Pas de remplissage de bodyContent ici #}
+{#{% block bodyContent %}{% endblock %}#}

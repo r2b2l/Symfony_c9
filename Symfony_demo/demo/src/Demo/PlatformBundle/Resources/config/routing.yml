@@ -4,7 +4,7 @@
 #     path:     /
 #     defaults: { _controller: DemoPlatformBundle:Default:index }
 
-
+# Index
 demo_platform_home:
     path:    /{page}
     defaults: 
@@ -12,33 +12,46 @@ demo_platform_home:
         page: 1
     requirements: 
         page: \d*
-    
+
+# Vue Annonce    
 demo_platform_view:
     path:      /advert/{id}
     defaults: 
         _controller: DemoPlatformBundle:Advert:view
     requirements: 
         id: \d+    
-    
+
+# Ajout annonce    
 demo_platform_add:
     path:      /add
     defaults:
         _controller: DemoPlatformBundle:Advert:add
 
+# Modification annonce
 demo_platform_edit:
     path:    /edit/{id}
     defaults:
         _controller: DemoPlatformBundle:Advert:edit
     requirements:
         id: \d+
-        
+
+# Suppression annonce
 demo_platform_delete:
     path:    /delete/{id}
     defaults:
         _controller: DemoPlatformBundle:Advert:delete
     requirements:
         id: \d+
-    
+
+# Modification de l'image de l'Advert
+demo_platform_edit_image:
+    path:    /edit/image/{id}
+    defaults:
+        _controller: DemoPlatformBundle:Advert:editImage
+    requirements:
+        id: \d+
+
+# Pour le test   
 demo_platform_view_slug:
     # _format = paramètre système => Va définir le content-type de la page
     path:      /{year}/{slug}.{_format}

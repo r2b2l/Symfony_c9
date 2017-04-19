@@ -1,0 +1,17 @@
+{# src/Demo/PlatformBundle/Resources/views/layout.html.twig #}
+
+{# Layout du Bundle Plateforme, etends le layout de Core #}
+{% extends "DemoCoreBundle::layout.html.twig" %}
+
+{% block title %}Annonces - Demo Plateforme{% endblock %}
+{% block bodyHeader %}      
+  <h1> Page d'accueil des annonces du site</h1>
+{% endblock %} 
+{% block bodyContent %}
+    <h2>Les annonces</h2>
+    <hr/>
+    
+    {# Block de remplissage de corps des vues du bundle #}
+    {% block demoplatform_bodyContent %}
+    {% endblock %}
+{% endblock %}

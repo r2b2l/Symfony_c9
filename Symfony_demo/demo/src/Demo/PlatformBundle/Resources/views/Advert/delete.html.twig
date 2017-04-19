@@ -1,0 +1,23 @@
+{# src/Demo/PlatformBundle/Resources/view/Advert/edit.html.twig #}
+
+{% extends "DemoPlatformBundle::layout.html.twig" %}
+{% block title %}Supprimer une annonce - {{ parent() }}{% endblock %}
+
+{% block demoplatform_bodyContent %}
+  <h3>Supprimer une annonce</h3>
+  
+  {#{{ include("DemoPlatformBundle:Advert:form.html.twig") }}#}
+  
+  <p>
+    Souhaitez vous supprimer l'annonce :
+      <bold>{{ advert.title }}</bold>, 
+      <i>Par {{ advert.author }}, le {{ advert.date|date('d/m/Y')}}</i>
+      <div class="well">{{ advert.content}}</div>
+  </p>
+  <p>
+    <a href="{#{{ path('futur_path_de_suppression', {'id': advert.id})}}#}" class="btn btn-default">Oui</a>
+    <a href="{{ path('demo_platform_home') }}" class="btn btn-danger">
+      Non, retourer aux annonces
+    </a>
+  </p>
+{% endblock %}

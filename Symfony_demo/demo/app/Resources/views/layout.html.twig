@@ -1,0 +1,50 @@
+{# app/Resources/views/layout.html.twig #}
+{# Layout de base pour le site  #}
+{# utiliser dans une vue avec : extends ::layout.html.twig  #}
+
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>
+      {% block title %}Demo Site Symfony{% endblock %}
+    </title>
+    {% block stylesheets %}
+      {# On charge le CSS de bootstrap depuis le site directement #}
+      <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/css/bootstrap.min.css" integrity="sha384-rwoIResjU2yc3z8GV/NPeZWAv56rSmLldC3R/AZzGRnGxQQKnKkoFVhFQhNUwEyJ" crossorigin="anonymous">
+    {% endblock %}
+  </head>
+  <body>
+    <div class="container">
+      <div id="header" class="jumbotron">
+        {% block bodyHeader %}{% endblock %}
+      </div>
+  
+      <div class="row">
+        <div id="menu" class="col-md-3">
+          {% block bodyMenu %}{% endblock %}
+        </div>
+        <div id="content" class="col-md-9">
+          {% block bodyContent %}
+          {% endblock %}
+        </div>
+      </div>
+      <hr>
+      <footer>
+        <p>
+      {% block bodyFooter %}
+        The sky's the limit © {{ 'now'|date('Y') }} and beyond.
+      {% endblock %}
+        </p>
+      </footer>
+    </div>
+  
+    {% block javascripts %}
+      {# Ajoutez ces lignes JavaScript si vous comptez vous servir des fonctionnalités du bootstrap Twitter #}
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/tether/1.4.0/js/tether.min.js" integrity="sha384-DztdAPBWPRXSA/3eYEEUWrWCy7G5KFbe8fFjk5JAIxUYHKkDx6Qin1DkWx51bBrb" crossorigin="anonymous"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/js/bootstrap.min.js" integrity="sha384-vBWWzlZJ8ea9aCX4pEW3rVHjgjt7zpkNpZk+02D9phzyeVkE+jo0ieGizqPLForn" crossorigin="anonymous"></script>
+    {% endblock %}
+  </body>
+</html>

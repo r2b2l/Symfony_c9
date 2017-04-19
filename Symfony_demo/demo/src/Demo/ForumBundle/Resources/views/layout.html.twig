@@ -1,0 +1,17 @@
+{# src/Demo/ForumBundle/Resources/views/layout.html.twig #}
+
+{# Layout du Bundle Forum, etends le layout de Core #}
+{% extends "DemoCoreBundle::layout.html.twig" %}
+
+{% block title %}Forum - Demo{% endblock %}
+{% block bodyHeader %}      
+  <h1> Page d'accueil du forum du annonces du site</h1>
+{% endblock %} 
+{% block bodyContent %}
+    <h2>Les derniers topics</h2>
+    <hr/>
+    
+    {# Block de remplissage de corps des vues du bundle #}
+    {% block demoforum_bodyContent %}
+    {% endblock %}
+{% endblock %}

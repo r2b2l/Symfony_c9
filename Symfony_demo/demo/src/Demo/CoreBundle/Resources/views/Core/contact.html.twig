@@ -1,0 +1,16 @@
+{# src/Demo/CoreBundle/Resources/views/Default/index.html.twig #}
+
+{% extends "DemoCoreBundle::layout.html.twig" %}
+
+{% block bodyHeader %}
+{{ parent() }}
+<p>
+    Contactez-nous !
+</p>
+{% endblock %}
+{% block bodyContent %}
+  {# On affiche tous les messages flash dont le nom est « info » #}
+  {% for message in app.session.flashbag.get('info') %}
+    <p class="alert alert-success" role="alert">Message flash : {{ message }}</p>
+  {% endfor %}
+{% endblock %}

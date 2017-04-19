@@ -2,3 +2,10 @@ services:
 #    demo_platform.example:
 #        class: Demo\PlatformBundle\Example
 #        arguments: ["@service_id", "plain_value", "%parameter%"]
+    demo_platform.antispam:
+        class: Demo\PlatformBundle\Antispam\DemoAntispam
+        arguments: ["@mailer", %locale%, 50] # Tableau d'arguments
+            # - "@mailer"
+            # - %locale%
+            # - 50
+            # Mettre les arguments dans le tableau, les mettre hors tableau avec des tirets ne fonctionne pas
