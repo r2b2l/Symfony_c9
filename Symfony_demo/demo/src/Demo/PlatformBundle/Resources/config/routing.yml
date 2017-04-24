@@ -51,6 +51,13 @@ demo_platform_edit_image:
     requirements:
         id: \d+
 
+# Test du Repository d'Advert
+# A commenter lorsque non utile
+# demo_platform_test_advert_repository:
+#     path:    /test/advert
+#     defaults:
+#         _controller: DemoPlatformBundle:Advert:test
+
 # Pour le test   
 demo_platform_view_slug:
     # _format = paramètre système => Va définir le content-type de la page

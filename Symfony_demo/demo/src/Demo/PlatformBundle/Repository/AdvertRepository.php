@@ -2,6 +2,10 @@
 
 namespace Demo\PlatformBundle\Repository;
 
+// A decommenter si bug
+// use Doctrine\ORM\EntityRepository;
+use Doctrine\ORM\QueryBuilder;
+
 /**
  * AdvertRepository
  *
@@ -10,4 +14,107 @@ namespace Demo\PlatformBundle\Repository;
  */
 class AdvertRepository extends \Doctrine\ORM\EntityRepository
 {
+    // Ici, nous sommes dans le Repository de l'entité, pas besoin de faire getDoctrine()->getManager()->getRepository('.........:Advert')
+    
+    public function myFindAll(){
+        // Methode 1 : Via l'Entity Manager
+        $queryBuilder = $this->_em->createQueryBuilder()
+            ->select('a') // All 
+            ->from($this->_entityName, 'a'); // Entity
+        // Dans un repository, $this->_entityName est le namespace de l'entité gérée
+        // Ici, il vaut donc Demo\PlatformBundle\Entity\Advert
+        
+        // Methode 2 : Raccourci
+        // $this->createQueryBuilder remplis deja le SELECT et FROM
+        $queryBuilder = $this->createQueryBuilder('a');
+        // On n'ajoute pas de critère ou tri particulier, la construction de notre requête est finie
+        
+        // On récupère la Query
+        $query = $queryBuilder->getQuery();
+        
+        // Récuperation des resultats
+        $results = $query->getResult();
+        
+        // Retourne les resulatts
+        // return $results;
+        
+        // Methode 3 : Raccourci de raccourci
+        return $this->createQueryBuilder('a')->getQuery()->getResult();
+    }
+    
+    public function myFindOne($id){
+        $qb = $this->createQueryBuilder('a');
+        $qb->where('a.id = :id')
+        ->setParameter('id', $id);
+        
+        return $qb->getQuery()->getResult();
+    }
+    
+    public function findByAuthorAndDate($author, $year){
+      $qb = $this->createQueryBuilder('a');
+    
+      $qb->where('a.author = :author')
+          ->setParameter('author', $author)
+         ->andWhere('a.date < :year')
+          ->setParameter('year', $year)
+         ->orderBy('a.date', 'DESC')
+      ;
+    
+      return $qb
+        ->getQuery()
+        ->getResult()
+      ;
+    }
+    
+    public function myFind(){
+        $qb = $this->createQueryBuilder('a');
+        $qb->where('a.author = :author')
+        ->setParameter('author', 'Marine');
+        
+        // Application de la condition sur l'annee
+        $this->whereCurrentYear($qb);
+        
+        $qb->orderBy('a.date', 'DESC');
+        
+        return $qb->getQuery()->getResult();
+    }
+    
+    public function myFindDQL($id){
+        $query = $this->_em->createQuery('SELECT a FROM DemoPlatformBundle:Advert a WHERE a.id = :id');
+        $query->setParameter('id', $id);
+        
+        // getSingleResult car la requete ne doit retourner qu'un résultat
+        return $query->getSingleResult();
+    }
+    
+    public function whereCurrentYear(QueryBuilder $qb){
+        $qb->andWhere('a.date BETWEEN :start AND :end')
+        // start : 1er janvier
+        ->setParameter('start', new \DateTime(date('Y').'-01-01'))
+        // end : 31 decembre
+        ->setParameter('end', new \DateTime(date('Y').'-12-31'));
+        // Possible de passer un array au set parameter : array('start' => date, 'end' => date)
+    }
+    
+    public function getAdvertWithApplications(){
+        $qb = $this->createQueryBuilder('a')
+        ->leftJoin('a.applications', 'app', 'WITH', 'YEAR(app.date) > 2013')
+        ->addSelect('app');
+        
+        return $qb->getQuery()->getResult();
+    }
+    
+    public function getAdvertWithCategories(array $categoryNames){
+        //SQL : Select * From advert, category, advertCategory Where category.name IN (&categoryNames)
+        
+        $qb -> $this->createQueryBuilder('a')
+        // On fait une jointure avec l'entité Category avec pour alias « c »
+        ->innerJoin('a.categories','c')
+        ->addSelect('c');
+        // Puis on filtre sur le nom des catégories à l'aide d'un IN
+        $qb->where($qb->expr()->in('c.name', $categoryNames));
+        
+        // Return un tableau d'advert
+        return $qb->getQuery()->getResult();
+    }
 }

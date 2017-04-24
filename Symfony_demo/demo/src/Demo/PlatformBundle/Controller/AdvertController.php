@@ -364,7 +364,7 @@ class AdvertController extends Controller
           // les variables nécessaires au template !
           'listAdverts' => $listAdverts
         ));
-    }    
+    }  
     
     // Retourne les dernières annonces du site
     // Param : Limite d'annonces    
@@ -378,6 +378,21 @@ class AdvertController extends Controller
         );
         return $listAdverts;
     }
+    
+    // Test fonctions du Repository
+    // A commenter 
+    // Routing : DemoPlatformBundle:Advert:test
+    // public function testAction(){
+    //     $repository = $this->getDoctrine()->getManager()->getRepository('DemoPlatformBundle:Advert');
+        
+    //     // Fonction à tester
+    //     $result = $repository->myFindAll();
+        
+    //     //Affichage du resultat
+    //     return New Response(
+    //         '<html><body>'.var_dump($result).'</body></html>'
+    //         );
+    // }
     
     // Pour le test
     // Routing : DemoPlatformBundle:Advert:editImage
