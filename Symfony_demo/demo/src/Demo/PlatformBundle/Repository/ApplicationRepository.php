@@ -1,6 +1,9 @@
 <?php
 
 namespace Demo\PlatformBundle\Repository;
+// A decommenter si bug
+// use Doctrine\ORM\EntityRepository;
+use Doctrine\ORM\QueryBuilder;
 
 /**
  * ApplicationRepository

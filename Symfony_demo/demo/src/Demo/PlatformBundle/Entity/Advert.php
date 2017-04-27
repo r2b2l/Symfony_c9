@@ -4,12 +4,14 @@ namespace Demo\PlatformBundle\Entity;
 
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
+use Gedmo\Mapping\Annotation as Gedmo;
 
 /**
  * Advert
  *
  * @ORM\Table(name="demo_advert")
  * @ORM\Entity(repositoryClass="Demo\PlatformBundle\Repository\AdvertRepository")
+ * @ORM\HasLifecycleCallbacks()
  */
 class Advert
 {
@@ -66,7 +68,14 @@ class Advert
      * @ORM\Column(name="author", type="string", length=255)
      */
     private $author;
-
+    
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="email", type="string", length=255)
+     */
+    private $email;
+    
     /**
      * @var string
      *
@@ -74,6 +83,22 @@ class Advert
      */
     private $content;
 
+    /**
+     * @ORM\Column(name="updated_at", type="datetime", nullable=true)
+     */
+    private $updatedAt;
+    
+    /**
+     * @ORM\Column(name="nb_application", type="integer")
+     */
+     private $nbApplication = 0;
+    
+    /**
+     * @Gedmo\Slug(fields={"title"})
+     * @ORM\Column(name="slug", type="string", length=255, unique=true)
+     */
+    private $slug;
+    
     // Constructeur de l'objet
     public function __construct(){
         // Par défaut, la date de l'annonce est la date d'aujourd'hui
@@ -308,5 +333,116 @@ class Advert
     public function getApplications()
     {
         return $this->applications;
+    }
+
+    /**
+     * Set updatedAt
+     *
+     * @param \DateTime $updatedAt
+     *
+     * @return Advert
+     */
+    public function setUpdatedAt($updatedAt)
+    {
+        $this->updatedAt = $updatedAt;
+
+        return $this;
+    }
+
+    /**
+     * Get updatedAt
+     *
+     * @return \DateTime
+     */
+    public function getUpdatedAt()
+    {
+        return $this->updatedAt;
+    }
+    
+    /**
+     * @ORM\PreUpdate
+     */
+    public function updateDate(){
+        $this->setUpdatedAt(new \DateTime());
+    }
+    
+    public function increaseApplication(){
+        $this->nbApplication++;
+    }
+    
+    public function decreaseApplication(){
+        $this->nbApplication--;
+    }
+
+    /**
+     * Set nbApplication
+     *
+     * @param integer $nbApplication
+     *
+     * @return Advert
+     */
+    public function setNbApplication($nbApplication)
+    {
+        $this->nbApplication = $nbApplication;
+
+        return $this;
+    }
+
+    /**
+     * Get nbApplication
+     *
+     * @return integer
+     */
+    public function getNbApplication()
+    {
+        return $this->nbApplication;
+    }
+
+    /**
+     * Set email
+     *
+     * @param string $email
+     *
+     * @return Advert
+     */
+    public function setEmail($email)
+    {
+        $this->email = $email;
+
+        return $this;
+    }
+
+    /**
+     * Get email
+     *
+     * @return string
+     */
+    public function getEmail()
+    {
+        return $this->email;
+    }
+
+    /**
+     * Set slug
+     *
+     * @param string $slug
+     *
+     * @return Advert
+     */
+    public function setSlug($slug)
+    {
+        $this->slug = $slug;
+
+        return $this;
+    }
+
+    /**
+     * Get slug
+     *
+     * @return string
+     */
+    public function getSlug()
+    {
+        return $this->slug;
     }
 }

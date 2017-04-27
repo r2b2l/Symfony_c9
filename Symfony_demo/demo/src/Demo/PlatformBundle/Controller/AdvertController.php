@@ -190,6 +190,7 @@ class AdvertController extends Controller
         $advert = new Advert();
         $advert->setTitle('Une annonce');
         $advert->setAuthor('Le grand boss');
+        $advert->setEmail('erwanmartinpro@gmail.com');
         $advert->setContent('Nous recrutons quelqu\'un, pas besoin de préciser pourquoi');
         
         // Creation de l'entité Image
