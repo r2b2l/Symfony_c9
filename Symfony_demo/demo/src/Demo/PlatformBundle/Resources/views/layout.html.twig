@@ -15,3 +15,9 @@
     {% block demoplatform_bodyContent %}
     {% endblock %}
 {% endblock %}
+{% block javascripts %}
+  {{ parent() }}
+  {% javascripts '@DemoPlatformBundle/Resources/public/js/*' %}
+    <script src="{{ asset_url }}"></script>
+  {% endjavascripts %}
+{% endblock %}

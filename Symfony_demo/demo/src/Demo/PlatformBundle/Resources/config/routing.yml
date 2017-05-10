@@ -68,3 +68,11 @@ demo_platform_view_slug:
     requirements:
         year: \d{4}
         _format: html|xml
+        
+# Modification annonce
+demo_platform_advert_purger:
+    path:    /purge/{limit}
+    defaults:
+        _controller: DemoPlatformBundle:Advert:purge
+    requirements:
+        limit: \d+

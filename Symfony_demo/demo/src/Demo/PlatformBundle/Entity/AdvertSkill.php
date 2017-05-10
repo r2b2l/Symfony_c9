@@ -30,9 +30,10 @@ class AdvertSkill
 
 
     /**
-     * @ORM\ManyToOne(targetEntity="Demo\PlatformBundle\Entity\Advert")
+     * @ORM\ManyToOne(targetEntity="Demo\PlatformBundle\Entity\Advert", inversedBy="skills")
      * @ORM\JoinColumn(nullable=false)
      */ 
+     // Relation bidirectionnelle : Inversed by => champ de l'entité propriétaire dans l'entité inverse => private $applications de Advert
     private $advert;
 
     /**

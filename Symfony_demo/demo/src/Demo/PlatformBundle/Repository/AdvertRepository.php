@@ -5,6 +5,7 @@ namespace Demo\PlatformBundle\Repository;
 // A decommenter si bug
 // use Doctrine\ORM\EntityRepository;
 use Doctrine\ORM\QueryBuilder;
+use Doctrine\ORM\Tools\Pagination\Paginator;
 
 /**
  * AdvertRepository
@@ -116,5 +117,84 @@ class AdvertRepository extends \Doctrine\ORM\EntityRepository
         
         // Return un tableau d'advert
         return $qb->getQuery()->getResult();
+    }
+    
+    public function getLastAdvertsWithLimit($limit){
+        $qb = $this->createQueryBuilder('a');
+        $qb->orderBy('a.id', 'DESC')
+        ->setMaxResults($limit);
+        return $qb->getQuery()->getResult();
+    }
+    
+    /*
+    * Recuperation de toutes les Adverts avec les images et les catégories en 1 requete
+    */
+    public function getAdverts($page, $nbPerPage){
+        $query = $this->createQueryBuilder('a')
+        ->leftJoin('a.image', 'i')
+        ->addSelect('i')
+        ->leftJoin('a.categories', 'c')
+        ->addSelect('c')
+        ->leftJoin('a.skills', 's')
+        ->addSelect('s')
+        ->leftJoin('s.skill', 'k')
+        ->addSelect('k')
+        ->orderBy('a.date', 'DESC')
+        ->getQuery();
+        
+        $query
+          // On définit l'annonce à partir de laquelle commencer la liste
+         ->setFirstResult(($page-1) * $nbPerPage)
+          // Ainsi que le nombre d'annonce à afficher sur une page
+         ->setMaxResults($nbPerPage)
+        ;
+        return new Paginator($query, true);
+        // return $query->getResult();
+    }
+    
+    /*
+    * Add a Where clause to the QueryBuilder to get Adverts with creation / modif date lower than param
+    * @param : QueryBuilder $qb, Datetime $date
+    */
+    public function whereDateIsLowerParam(QueryBuilder $qb, \DateTime $date){
+        $qb->AndWhere('a.updatedAt <= :date')                      // Date de modification antérieure à :date
+        ->orWhere('a.updatedAt IS NULL AND a.date <= :date') // Si la date de modification est vide, on vérifie la date de création
+        
+        ->setParameter('date', $date);
+    }
+    
+    /*
+    * Where No Applications
+    * @param : QueryBuilder $qb
+    */
+    public function whereNoApplications(QueryBuilder $qb){
+        $qb->andWhere('a.applications IS EMPTY');
+    }
+    
+    /*
+    * Get the Adverts 
+    */
+    public function getAllAdverts(){
+        $qb = $this->createQueryBuilder('a');
+        return $qb;
+    }
+    
+    /*
+    * Recuperation de toutes les Adverts sans candidatures
+    * Avec une date de creation / modification inf. a la date passee en param
+    * @param : Datetime $date
+    */    
+    public function getAdvertsWithNoApplicationsAndDateLowerThanParam(\DateTime $date){
+        $qb = $this->getAllAdverts();
+        $this->whereDateIsLowerParam($qb, $date);
+        $this->whereNoApplications($qb);
+        return $qb->getQuery()->getResult();
+        
+        // $qb=$this->createQueryBuilder('a')
+        // ->where('a.updatedAt <= :date')                      // Date de modification antérieure à :date
+        // ->orWhere('a.updatedAt IS NULL AND a.date <= :date') // Si la date de modification est vide, on vérifie la date de création
+        // ->andWhere('a.applications IS EMPTY')                // On vérifie que l'annonce ne contient aucune candidature
+        // ->setParameter('date', $date);
+        // return $qb->getQuery()->getResult();
     }
 }

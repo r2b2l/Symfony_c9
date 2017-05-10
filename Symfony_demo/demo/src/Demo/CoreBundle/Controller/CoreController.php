@@ -19,8 +19,7 @@ class CoreController extends Controller
     // Routing : DemoCoreBundle:Core:index
     // Routing Param : 
     public function indexAction(){
-        $listAdverts = $this->container->get('demo_core.platform')->getLastAdvertsAction(3);
-        return $this->render('DemoCoreBundle:Core:index.html.twig',array('listAdverts' => $listAdverts));
+        return $this->render('DemoCoreBundle:Core:index.html.twig'); 
     }
     
     // Display the contact page

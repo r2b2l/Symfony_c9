@@ -4,7 +4,9 @@
 
 namespace Demo\PlatformBundle\Controller;
 
+use Doctrine\ORM\EntityRepository;
 use Demo\PlatformBundle\Entity\Advert;
+use Demo\PlatformBundle\Form\AdvertType;
 use Demo\PlatformBundle\Entity\AdvertSkill;
 use Demo\PlatformBundle\Entity\Image;
 use Demo\PlatformBundle\Entity\Application;
@@ -13,6 +15,14 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use CoreBundle\Controller\CoreController;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
+use Symfony\Component\Form\Extension\Core\Type\DateType;
+use Symfony\Component\Form\Extension\Core\Type\FormType;
+use Symfony\Component\Form\Extension\Core\Type\SubmitType;
+use Symfony\Component\Form\Extension\Core\Type\TextareaType;
+use Symfony\Component\Form\Extension\Core\Type\TextType;
+
+
 
 // Il faut étendre le contrôleur pour accéder aux fonctions
 class AdvertController extends Controller
@@ -50,31 +60,44 @@ class AdvertController extends Controller
         
         // Récupération de la liste des annonces, a passer au Template
         // Liste d'annonces en dur
-        $listAdverts = array(
-          array(
-            'title'   => 'Recherche développpeur Symfony',
-            'id'      => 1,
-            'author'  => 'Alexandre',
-            'content' => 'Nous recherchons un développeur Symfony débutant sur Lyon. Blabla…',
-            'date'    => new \Datetime()),
-          array(
-            'title'   => 'Mission de webmaster',
-            'id'      => 2,
-            'author'  => 'Hugo',
-            'content' => 'Nous recherchons un webmaster capable de maintenir notre site internet. Blabla…',
-            'date'    => new \Datetime()),
-          array(
-            'title'   => 'Offre de stage webdesigner',
-            'id'      => 3,
-            'author'  => 'Mathieu',
-            'content' => 'Nous proposons un poste pour webdesigner. Blabla…',
-            'date'    => new \Datetime())
-        );
+        // $listAdverts = array(
+        //   array(
+        //     'title'   => 'Recherche développpeur Symfony',
+        //     'id'      => 1,
+        //     'author'  => 'Alexandre',
+        //     'content' => 'Nous recherchons un développeur Symfony débutant sur Lyon. Blabla…',
+        //     'date'    => new \Datetime()),
+        //   array(
+        //     'title'   => 'Mission de webmaster',
+        //     'id'      => 2,
+        //     'author'  => 'Hugo',
+        //     'content' => 'Nous recherchons un webmaster capable de maintenir notre site internet. Blabla…',
+        //     'date'    => new \Datetime()),
+        //   array(
+        //     'title'   => 'Offre de stage webdesigner',
+        //     'id'      => 3,
+        //     'author'  => 'Mathieu',
+        //     'content' => 'Nous proposons un poste pour webdesigner. Blabla…',
+        //     'date'    => new \Datetime())
+        // );
+        $nbAdvertsPerPage = 3;
+        $listAdverts = $this->getDoctrine()->getManager()->getRepository('DemoPlatformBundle:Advert')->getAdverts($page, $nbAdvertsPerPage);
         
+        // Calcul du nombre total de pages
+        $nbPages = ceil(count($listAdverts) / $nbAdvertsPerPage);
+        
+        // Si la page n'existe pas, 404
+        if ($page > $nbPages){
+            throw new NotFoundHttpException('Page "'. $page .'" inexistante.');
+        }
         // Appel au Template
         return $this->render('DemoPlatformBundle:Advert:index.html.twig'
-        ,array('listAdverts' => $listAdverts)
-        );
+        ,array('listAdverts' => $listAdverts,
+            'nbPages' => $nbPages,
+            'page' => $page
+        ));
+        
+        
     }
     
     // Routing : DemoPlatformBundle:Advert:view
@@ -174,6 +197,71 @@ class AdvertController extends Controller
     // Routing : DemoPlatformBundle:Advert:add
     // Routing Param : N/A
     public function addAction(Request $request){
+        // Version officielle
+        $advert = New Advert();
+        
+        // Préremplissage de la date
+        $advert->setDate(new \Datetime());
+        
+        // Création du formBuilder grace a form factory
+        //$formBuilder = $this->get('form.factory')->createBuilder(FormType::class, $advert);
+        // V2
+        // $form = $this->get('form.factory')->create(AdvertType::class, $advert);
+       $form = $this->createForm(AdvertType::class, $advert);
+        
+        // Ajout des champs de l'entite pour le formulaire
+        // $formBuilder
+        //     ->add('date', DateType::class)
+        //     ->add('title', TextType::class)
+        //     ->add('content', TextareaType::class)
+        //     ->add('author', TextType::class)
+        //     ->add('email', TextType::class)
+        //     ->add('published', CheckboxType::class, array('required' => false)) // Required false indique que le champ n'est pas obligatoire d'etre renseigné (champs facultatifs de l'entity)
+        //     ->add('save', SubmitType::class)
+        // ;
+        // Pour le moment, pas de candidatures, categ, skills ou autre
+        // A partir du formBuilder, on genere le formulaire
+        // $form = $formBuilder->getForm();
+        
+        
+            // Si la requête est en POST, c'est que le visiteur a soumis le formulaire
+        if ($request->isMethod('POST')) {
+            // Gestion du lien Requete <-> formulaire
+            // À partir de maintenant, la variable $advert contient les valeurs entrées dans le formulaire par le visiteur
+            $form->handleRequest($request);
+            
+            // Vérification de la validité des données
+            if($form->isValid()){
+                $em = $this->getDoctrine()->getManager();
+                // Ajout des skills a la mano
+                $listSkills = $em->getRepository('DemoPlatformBundle:Skill')->findAll();
+                foreach($listSkills as $skill){
+                    // Création de la relation entre l'Advert et le Skill
+                    $advertSkill = new AdvertSkill();
+                    // Liaison à l'Advert
+                    $advertSkill->setAdvert($advert);
+                    // Liaison du Skill de la boucle
+                    $advertSkill->setSkill($skill);
+                    // Ajout du niveau : Par défaut on va dire Expert :D
+                    $advertSkill->setLevel('Expert');
+                    // Persistance par Doctrine
+                    $em->persist($advertSkill);
+                }
+                
+                $em->persist($advert);
+                $em->flush();
+                           
+                // Message Flash de l'enregistrement de l'annonce
+                $session = $request->getSession();
+                $session->getFlashBag()->add('notice','Annonce bien enregistrée');
+            
+                // Redirection vers la page de visualisation
+                return $this->redirectToRoute('demo_platform_view', array('id' => $advert->getId()));
+            }
+        }
+        // Soit l'utilisateur demande la vue, soit le formulaire est mal rempli
+        return $this->render('DemoPlatformBundle:Advert:add.html.twig', array('form' => $form->createView()));
+        
         // $request = Objet de la classe Request qui permet l'accès à la requete HTTP
         
         // Récupération du service Antispam
@@ -183,87 +271,72 @@ class AdvertController extends Controller
         //   throw new \Exception('Votre message a été détecté comme spam !');
         // }
         
-        // throw new \Exception('On va éviter de spammer la création d\'Adverts bidon :p , ça enregistre en BDD ;) ');
+        // // throw new \Exception('On va éviter de spammer la création d\'Adverts bidon :p , ça enregistre en BDD ;) ');
+        // // Création de l'entité
+        // $advert = new Advert();
+        // $advert->setTitle('Une annonce');
+        // $advert->setAuthor('Le grand boss');
+        // $advert->setEmail('erwanmartinpro@gmail.com');
+        // $advert->setContent('Nous recrutons quelqu\'un, pas besoin de préciser pourquoi');
         
+        // // Creation de l'entité Image
+        // $image = new Image();
+        // $image->setUrl('http://sdz-upload.s3.amazonaws.com/prod/upload/job-de-reve.jpg');
+        // $image->setAlt('Job de rêve');
         
-        // Création de l'entité
-        $advert = new Advert();
-        $advert->setTitle('Une annonce');
-        $advert->setAuthor('Le grand boss');
-        $advert->setEmail('erwanmartinpro@gmail.com');
-        $advert->setContent('Nous recrutons quelqu\'un, pas besoin de préciser pourquoi');
+        // $advert->setImage($image);
         
-        // Creation de l'entité Image
-        $image = new Image();
-        $image->setUrl('http://sdz-upload.s3.amazonaws.com/prod/upload/job-de-reve.jpg');
-        $image->setAlt('Job de rêve');
+        // // Création des candidatures
+        // $application1 = new Application();
+        // $application1->setAuthor('Marine');
+        // $application1->setContent('J\'ai toutes les compétences.');
         
-        $advert->setImage($image);
-        
-        // Création des candidatures
-        $application1 = new Application();
-        $application1->setAuthor('Marine');
-        $application1->setContent('J\'ai toutes les compétences.');
-        
-        $application2 = new Application();
-        $application2->setAuthor('Pierre');
-        $application2->setContent('Je suis motivay.');
+        // $application2 = new Application();
+        // $application2->setAuthor('Pierre');
+        // $application2->setContent('Je suis motivay.');
 
-        $application1->setAdvert($advert);
-        $application2->setAdvert($advert);
+        // $application1->setAdvert($advert);
+        // $application2->setAdvert($advert);
         
-        // Récupération de l'Entity Manager
-        $em = $this->getDoctrine()->getManager();
+        // // Récupération de l'Entity Manager
+        // $em = $this->getDoctrine()->getManager();
         
-        // Récupération des Skills
-        $listSkills = $em->getRepository('DemoPlatformBundle:Skill')->findAll();
+        // // Récupération des Skills
+        // $listSkills = $em->getRepository('DemoPlatformBundle:Skill')->findAll();
         
-        foreach($listSkills as $skill){
-            // Création de la relation entre l'Advert et le Skill
-            $advertSkill = new AdvertSkill();
-            // Liaison à l'Advert
-            $advertSkill->setAdvert($advert);
-            // Liaison du Skill de la boucle
-            $advertSkill->setSkill($skill);
-            // Ajout du niveau : Par défaut on va dire Expert :D
-            $advertSkill->setLevel('Expert');
-            // Persistance par Doctrine
-            $em->persist($advertSkill);
-        }
+        // foreach($listSkills as $skill){
+        //     // Création de la relation entre l'Advert et le Skill
+        //     $advertSkill = new AdvertSkill();
+        //     // Liaison à l'Advert
+        //     $advertSkill->setAdvert($advert);
+        //     // Liaison du Skill de la boucle
+        //     $advertSkill->setSkill($skill);
+        //     // Ajout du niveau : Par défaut on va dire Expert :D
+        //     $advertSkill->setLevel('Expert');
+        //     // Persistance par Doctrine
+        //     $em->persist($advertSkill);
+        // }
         
-        // Persistance de l'entité
-        // Si on n'avait pas défini le cascade={"persist"} de l'image dans Advert, on devrait persister egalement l'entité $image
-        $em->persist($advert);
+        // // Persistance de l'entité
+        // // Si on n'avait pas défini le cascade={"persist"} de l'image dans Advert, on devrait persister egalement l'entité $image
+        // $em->persist($advert);
         
-        // Étape 1 ter : pour cette relation pas de cascade lorsqu'on persiste Advert, car la relation est
-        // définie dans l'entité Application et non Advert. On doit donc tout persister à la main ici.
-        $em->persist($application1);
-        $em->persist($application2);
+        // // Étape 1 ter : pour cette relation pas de cascade lorsqu'on persiste Advert, car la relation est
+        // // définie dans l'entité Application et non Advert. On doit donc tout persister à la main ici.
+        // $em->persist($application1);
+        // $em->persist($application2);
   
       
-        // Test de récupération d'une annonce et modif de la date pour tester le Strart transaction du Flush d'Entity Manager
-        // A commenter en suivant ;)
-        // // Advert 2 est une entité Doctrine, on aura même pas besoin de faire un persist dessus :p
-        // $advert2 = $em->getRepository('DemoPlatformBundle:Advert')->find(1);
-        //   // Modif de la date
-        // $advert2->setDate(new \Datetime());
+        // // Test de récupération d'une annonce et modif de la date pour tester le Strart transaction du Flush d'Entity Manager
+        // // A commenter en suivant ;)
+        // // // Advert 2 est une entité Doctrine, on aura même pas besoin de faire un persist dessus :p
+        // // $advert2 = $em->getRepository('DemoPlatformBundle:Advert')->find(1);
+        // //   // Modif de la date
+        // // $advert2->setDate(new \Datetime());
         
-        // Flush (enregistre en BDD) ce qui a été persisté précédemment
-        $em->flush();
+        // // Flush (enregistre en BDD) ce qui a été persisté précédemment
+        // $em->flush();
         
-        // Si la requête est en POST, c'est que le visiteur a soumis le formulaire
-        if ($request->isMethod('POST')) {
-            // Ici, creation et gestion du formulaire
-            $session = $request->getSession();
-            // Message Flash de l'enregistrement de l'annonce
-            $session->getFlashBag()->add('notice','Annonce bien enregistrée');
-            
-            // Redirection vers la page de visualisation
-            return $this->redirectToRoute('demo_platform_view', array('id' => $advert->getId()));
-        }
-        
-        // Si on n'est pas en POST, alors on affiche le formulaire
-        return $this->render('DemoPlatformBundle:Advert:add.html.twig', array('advert' => $advert));
     }
     
     // Routing : DemoPlatformBundle:Advert:edit
@@ -278,6 +351,8 @@ class AdvertController extends Controller
         if (null === $advert){
             throw new NotFoundHttpException("L'annonce " .$id. " n'a pas été trouvée");
         }
+        
+        $formBuilder = $this->get('form.factory')->createBuilder(FormType::class, $advert);
         
         // On récupère toutes les catégories
         $listCategories = $em->getRepository('DemoPlatformBundle:Category')->findAll();
@@ -354,12 +429,20 @@ class AdvertController extends Controller
     public function menuAction($limit){
         // On fixe en dur une liste ici, bien entendu par la suite
         // on la récupérera depuis la BDD !
-        $listAdverts = array(
-          array('id' => 2, 'title' => 'Recherche développeur Symfony'),
-          array('id' => 5, 'title' => 'Mission de webmaster'),
-          array('id' => 9, 'title' => 'Offre de stage webdesigner')
-        );
-    
+        // $listAdverts = array(
+        //   array('id' => 2, 'title' => 'Recherche développeur Symfony'),
+        //   array('id' => 5, 'title' => 'Mission de webmaster'),
+        //   array('id' => 9, 'title' => 'Offre de stage webdesigner')
+        // );
+        
+        //   $listAdverts = $em->getRepository('OCPlatformBundle:Advert')->findBy(
+        //   array(),                 // Pas de critère
+        //   array('date' => 'desc'), // On trie par date décroissante
+        //   $limit,                  // On sélectionne $limit annonces
+        //   0                        // À partir du premier
+        //   );
+        
+        $listAdverts = $this->getLastAdvertsAction(3);
         return $this->render('DemoPlatformBundle:Advert:menu.html.twig', array(
           // Tout l'intérêt est ici : le contrôleur passe
           // les variables nécessaires au template !
@@ -372,11 +455,17 @@ class AdvertController extends Controller
     public function getLastAdvertsAction($limit){
         // On fixe en dur une liste ici, bien entendu par la suite
         // on la récupérera depuis la BDD !
-        $listAdverts = array(
-          array('id' => 2, 'title' => 'Recherche développeur Symfony'),
-          array('id' => 5, 'title' => 'Mission de webmaster'),
-          array('id' => 9, 'title' => 'Offre de stage webdesigner')
-        );
+        // $listAdverts = array(
+        //   array('id' => 2, 'title' => 'Recherche développeur Symfony'),
+        //   array('id' => 5, 'title' => 'Mission de webmaster'),
+        //   array('id' => 9, 'title' => 'Offre de stage webdesigner')
+        // );
+        
+        // Récupération du répository
+        // Definition de l'Entity Manager
+        $repository = $this->getDoctrine()->getManager()->getRepository('DemoPlatformBundle:Advert');
+        $listAdverts = $repository->getLastAdvertsWithLimit($limit);
+        
         return $listAdverts;
     }
     
@@ -424,5 +513,16 @@ class AdvertController extends Controller
             "On pourrait afficher l'annonce correspondant au
             slug '".$slug."', créée en ".$year." et au format ".$_format."."
         );
+    }
+    
+    // Pour le test
+    // Routing : DemoPlatformBundle:Advert:purge
+    // Routing Param : {limit} : limite de jour avant la purge
+    public function purgeAction($limit, Request $request){
+        // Récupération du service de purge
+        $purgeService = $this->get('demo_platform.advertPurger');
+        $purgeService->setEntityManager($this->getDoctrine()->getManager());
+        $purgeService->purge($limit);
+        return New Response('OK');
     }
 }

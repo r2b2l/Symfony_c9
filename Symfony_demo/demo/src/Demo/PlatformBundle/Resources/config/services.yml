@@ -19,3 +19,12 @@ services:
         arguments: ["@demo_platform.email.application_mailer"]
         tags:
           - { name: doctrine.event_listener, event: postPersist }
+          
+    demo_platform.advertPurger:
+        class: Demo\PlatformBundle\AdvertPurger\DemoAdvertPurger
+        arguments: ["@doctrine.orm.entity_manager"]
+        
+    # demo_platform.AdvertForm:
+    #     class: Demo\PlatformBundle\Form\AdvertType
+    #     tags:
+    #         - { name: form.type}

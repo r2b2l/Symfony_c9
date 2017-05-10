@@ -7,13 +7,36 @@
 {% block demoplatform_bodyContent %}
   <h3>Liste des annonces</h3>
   <ul>
+    {#{{ dump(listAdverts) }}#}
+    {#{{ dump(page) }}#}
+    {#{{ dump(nbPages) }}#}
       {% for advert in listAdverts %}
         <li>
             <a href="{{ path('demo_platform_view', {'id' : advert.id}) }}">{{ advert.title }}</a>
             par {{ advert.author }}, le {{ advert.date|date('d/m/Y') }}
+            {# Afifche le 1er Skill 'Principal' #}
+            {% if advert.skills is not null %}
+              <span class="badge badge-primary">Tag : {{advert.skills|first.skill.name  }}</span>
+            {% endif %}
+            {# Afficher tous les skills #}
+            {#{% for advertSkill in advert.skills %}#}
+            {#  {{ dump(advertSkill) }}#}
+            {#  {{ advertSkill.skill.name }}#}
+            {#{% endfor %}#}
         </li>
       {% else %}
           <li>Pas (encore !) d'annonces !</li>
       {% endfor %}
   </ul>
+  <nav aria-label="Navigation">
+    <ul class="pagination">
+      <li class="page-item"><a class="page-link" href="#" aria-label="Precedent"><span aria-hidden="true">&laquo;</span><span class="sr-only">Precédent</span></a></li>
+      
+      {% for i in range(1, nbPages) %}
+        <li class="page-item {% if i == page %}active{% endif %}"><a class="page-link" href="{{ path('demo_platform_home', {'page': i}) }}">{{ i }}</a></li>
+      {% endfor %}
+      
+      <li class="page-item"><a class="page-link" href="#" aria-label="Suivant"><span aria-hidden="true">&raquo;</span><span class="sr-only">Suivant</span></a></li>
+    </ul>
+  </nav>
 {% endblock %}

@@ -22,6 +22,11 @@ class Advert
      // Relation bidirectionnelle : Mapped by => champ de l'entité inverse dans l'entité proprietaire => private $advert de Application
     private $applications; // "s" car plusieurs candidatures possibles
     
+    /**
+     * @ORM\OneToMany(targetEntity="Demo\PlatformBundle\Entity\AdvertSkill", mappedBy="advert")
+     */
+    private $skills;
+    
     // @ORM\JoinTable(name="nomPeuImporte_advert_category") -> Change le nom de la table de jointure
     /**
      * @ORM\ManyToMany(targetEntity="Demo\PlatformBundle\Entity\Category", cascade={"persist"})
@@ -104,6 +109,7 @@ class Advert
         // Par défaut, la date de l'annonce est la date d'aujourd'hui
         $this->date = new \DateTime();
         $this->categories = new ArrayCollection();
+        $this->applications = new ArrayCollection();
     }
 
     /**
@@ -270,7 +276,6 @@ class Advert
     public function addCategory(\Demo\PlatformBundle\Entity\Category $category)
     {
         $this->categories[] = $category;
-
         return $this;
     }
 
@@ -444,5 +449,39 @@ class Advert
     public function getSlug()
     {
         return $this->slug;
+    }
+
+    /**
+     * Add skill
+     *
+     * @param \Demo\PlatformBundle\Entity\AdvertSkill $skill
+     *
+     * @return Advert
+     */
+    public function addSkill(\Demo\PlatformBundle\Entity\AdvertSkill $skill)
+    {
+        $this->skills[] = $skill;
+
+        return $this;
+    }
+
+    /**
+     * Remove skill
+     *
+     * @param \Demo\PlatformBundle\Entity\AdvertSkill $skill
+     */
+    public function removeSkill(\Demo\PlatformBundle\Entity\AdvertSkill $skill)
+    {
+        $this->skills->removeElement($skill);
+    }
+
+    /**
+     * Get skills
+     *
+     * @return \Doctrine\Common\Collections\Collection
+     */
+    public function getSkills()
+    {
+        return $this->skills;
     }
 }
